@@ -1,0 +1,22 @@
+name: gol-local
+
+services:
+  db:
+    image: postgres:latest
+    container_name: gol-db
+    restart: unless-stopped
+    env_file: [ .env, .env.docker ]
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    volumes:
+      - "postgres:/var/lib/postgresql/data"
+
+volumes:
+  postgres:
+    external: false

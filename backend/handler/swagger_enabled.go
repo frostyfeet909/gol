@@ -1,6 +1,6 @@
 //go:build swagger
 
-package api
+package handler
 
 import (
 	_ "api/docs"

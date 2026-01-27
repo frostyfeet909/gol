@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install go
+      uses: actions/setup-go@v6
+      with:
+        go-version: '1.25.6'
+
+    - name: Install the project
+      run: go mod download
+
+    - name: Run Linters (golangci-lint)
+      uses: golangci/golangci-lint-action@v9
+      with:
+        version: v2.8.0
+        args: --timeout=5m
+        working-directory: backend
+
+  migrations:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        working-directory: ./migrations
+    
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: gol
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install go
+      uses: actions/setup-go@v6
+      with:
+        go-version: '1.25.6'
+
+    - name: Install the project
+      run: make install
+
+    - name: Migrate Up
+      run: |
+        migrate -path ./migrations -database "$DB_URL" up
+      env:
+        DB_URL: postgres://postgres:password@localhost:5432/gol?sslmode=disable
+
+    - name: Migrate Down
+      run: |
+        migrate -path ./migrations -database "$DB_URL" down 1
+      env:
+        DB_URL: postgres://postgres:password@localhost:5432/gol?sslmode=disable
+    
+    
+

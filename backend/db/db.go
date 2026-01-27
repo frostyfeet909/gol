@@ -3,7 +3,6 @@ package db
 import (
 	"api/config"
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 
@@ -11,10 +10,11 @@ import (
 )
 
 func Connect(ctx context.Context, cfg *config.Config) *pgxpool.Pool {
-	dbpool, err := pgxpool.New(ctx, cfg.DbURL)
+	dbpool, err := pgxpool.New(ctx, cfg.DBURL)
 
 	if err != nil {
-		slog.Error(fmt.Sprintf("%s: %s", "Failed to connect to database", err))
+		logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelError}))
+		logger.ErrorContext(ctx, "failed to connect to database", slog.Any("err", err))
 		os.Exit(1)
 	}
 

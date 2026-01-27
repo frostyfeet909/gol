@@ -9,15 +9,16 @@ import (
 )
 
 type Config struct {
-	Debug   bool   `env:"DEBUG" envDefault:"true"`
-	AppPort int    `env:"APP_PORT" envDefault:"8080"`
-	DbURL   string `env:"DB_URL,unset,required"`
+	Debug   bool   `env:"DEBUG"                 envDefault:"true"`
+	AppPort int    `env:"APP_PORT"              envDefault:"8080"`
+	DBURL   string `env:"DB_URL,unset,required"`
 }
 
 func (c *Config) LoadConfig() {
 	loadDotenv()
 	if err := env.Parse(c); err != nil {
-		slog.Error(fmt.Sprintf("%s: %s", "Failed to parse config from env", err))
+		logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelError}))
+		logger.Error(fmt.Sprintf("%s: %s", "Failed to parse config from env", err))
 		os.Exit(1)
 	}
 }

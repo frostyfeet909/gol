@@ -20,7 +20,7 @@ type createReq struct {
 	Name  string `json:"name"  binding:"required,min=2"`
 }
 
-// CreateUser godoc
+// Create godoc
 // @Summary      Create a new user
 // @Description  Create a new user with email and name
 // @Tags         users
@@ -51,7 +51,7 @@ func (h *Handler) Create(c *gin.Context) {
 	})
 }
 
-// GetUser godoc
+// Get godoc
 // @Summary      Get a user
 // @Description  Fetch user by ID
 // @Tags         users

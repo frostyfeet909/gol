@@ -1,10 +1,11 @@
 package main
 
 import (
-	"api/api"
 	"api/config"
+	"api/handler"
 	"context"
 	"log/slog"
+	"os"
 )
 
 func main() {
@@ -15,9 +16,12 @@ func main() {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 	}
 
-	eng, cleanup := api.Build(context.Background(), *cfg)
+	eng, cleanup := handler.Build(context.Background(), *cfg)
 
 	defer cleanup()
-	eng.Run(":8080")
-
+	err := eng.Run(":8080")
+	if err != nil {
+		logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelError}))
+		logger.Error("Failed to run server", "error", err)
+	}
 }

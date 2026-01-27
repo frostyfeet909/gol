@@ -1,9 +1,9 @@
 //go:build !swagger
 
-package api
+package handler
 
 import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerSwagger(r *gin.Engine) {}
+func registerSwagger(_ *gin.Engine) {}

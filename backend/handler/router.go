@@ -1,8 +1,9 @@
-package api
+package handler
 
 import (
 	"api/config"
 	"api/internal/users"
+	"net/http"
 
 	"github.com/danielkov/gin-helmet/ginhelmet"
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,7 @@ func CreateRouters(h Handlers) *gin.Engine {
 	router.Use(ginhelmet.Default())
 
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"ok": true})
+		c.JSON(http.StatusOK, gin.H{"ok": true})
 	})
 
 	// if h.Config.Debug {

@@ -71,9 +71,15 @@ jobs:
     - name: Install the project
       run: make install
 
-    - name: Migrate Database
+    - name: Migrate Up
       run: |
         migrate -path ./migrations -database "$DB_URL" up
+      env:
+        DB_URL: postgres://postgres:password@localhost:5432/gol?sslmode=disable
+
+    - name: Migrate Down
+      run: |
+        migrate -path ./migrations -database "$DB_URL" down 1
       env:
         DB_URL: postgres://postgres:password@localhost:5432/gol?sslmode=disable
     

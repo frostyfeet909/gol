@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install go
+      uses: actions/setup-go@v6
+      with:
+        go-version: '1.25.6'
+
+    - name: Install the project
+      run: make install
+
+    - name: Run Linters (build)
+      run: go build ./cmd/api
+
+    - name: Run Linters (vet)
+      run: go vet ./cmd/api
+
+    - name: Run Linters (fmt)
+      run: go fmt ./cmd/api
+
+  migrations:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: gol
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install go
+      uses: actions/setup-go@v6
+      with:
+        go-version: '1.25.6'
+
+    - name: Install the project
+      run: make install
+
+    - name: Migrate Database
+      run: |
+        migrate -path ./migrations -database "$DB_URL" up
+      env:
+        DB_URL: postgres://postgres:password@localhost:5432/gol?sslmode=disable
+    
+    
+

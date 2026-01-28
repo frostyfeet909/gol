@@ -9,7 +9,6 @@ import (
 )
 
 func loadDotenv() {
-	a := "a"
 	if err := godotenv.Load(); err != nil {
 		slog.Warn("No .env file found")
 	}

@@ -23,6 +23,10 @@ func CreateRouters(h Handlers) *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"ok": true})
 	})
 
+	router.GET("/version", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"version": h.Config.Version})
+	})
+
 	// if h.Config.Debug {
 	// 	gin.SetMode(gin.DebugMode)
 	// } else {

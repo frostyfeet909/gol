@@ -3,8 +3,6 @@ package users
 import (
 	"context"
 
-	"errors"
-
 	"github.com/google/uuid"
 )
 
@@ -25,8 +23,6 @@ func (s *Service) Create(ctx context.Context, email string, name string) (User, 
 
 	if _, err := s.repo.GetByEmail(ctx, email); err == nil {
 		return User{}, ErrEmailTaken
-	} else if errors.Is(err, ErrNotFound) {
-		return User{}, err
 	}
 
 	u := User{

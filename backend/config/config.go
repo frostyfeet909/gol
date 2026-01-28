@@ -12,6 +12,7 @@ type Config struct {
 	Debug   bool   `env:"DEBUG"                 envDefault:"true"`
 	AppPort int    `env:"APP_PORT"              envDefault:"8080"`
 	DBURL   string `env:"DB_URL,unset,required"`
+	Version string `env:"VERSION"               envDefault:"v0.0.1"`
 }
 
 func (c *Config) LoadConfig() {

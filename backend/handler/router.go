@@ -20,8 +20,8 @@ func CreateRouters(h Handlers) *gin.Engine {
 
 	api := router.Group("/api")
 
-	router.GET("/health", health)
-	router.GET("/version", version(h.Config))
+	api.GET("/health", health)
+	api.GET("/version", version(h.Config))
 
 	// if h.Config.Debug {
 	// 	gin.SetMode(gin.DebugMode)

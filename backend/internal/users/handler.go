@@ -30,7 +30,7 @@ type createReq struct {
 // @Success      201   {object}  users.User
 // @Failure      400   {object}  map[string]string
 // @Failure      409   {object}  map[string]string
-// @Router       /users [post]
+// @Router       /v1/users [post]
 func (h *Handler) Create(c *gin.Context) {
 	var req createReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -59,7 +59,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Param        id   path      string  true  "User ID"
 // @Success      200  {object}  users.User
 // @Failure      404  {object}  map[string]string
-// @Router       /users/{id} [get]
+// @Router       /v1/users/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	id := c.Param("id")
 

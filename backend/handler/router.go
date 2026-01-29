@@ -3,7 +3,6 @@ package handler
 import (
 	"api/config"
 	"api/internal/users"
-	"net/http"
 
 	"github.com/danielkov/gin-helmet/ginhelmet"
 	"github.com/gin-gonic/gin"
@@ -19,13 +18,10 @@ func CreateRouters(h Handlers) *gin.Engine {
 
 	router.Use(ginhelmet.Default())
 
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"ok": true})
-	})
+	api := router.Group("/api")
 
-	router.GET("/version", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"version": h.Config.Version})
-	})
+	router.GET("/health", health)
+	router.GET("/version", version(h.Config))
 
 	// if h.Config.Debug {
 	// 	gin.SetMode(gin.DebugMode)
@@ -35,7 +31,6 @@ func CreateRouters(h Handlers) *gin.Engine {
 
 	registerSwagger(router)
 
-	api := router.Group("/api")
 	v1 := api.Group("/v1")
 
 	users.RegisterRouter(v1, h.UserHandler)

@@ -16,7 +16,10 @@ type Handlers struct {
 func CreateRouters(h Handlers) *gin.Engine {
 	router := gin.Default()
 
-	router.Use(ginhelmet.Default())
+	if !h.Config.Debug {
+		router.Use(ginhelmet.Default())
+		router.TrustedPlatform = gin.PlatformFlyIO
+	}
 
 	api := router.Group("/api")
 

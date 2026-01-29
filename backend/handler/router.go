@@ -14,6 +14,12 @@ type Handlers struct {
 }
 
 func CreateRouters(h Handlers) *gin.Engine {
+	if h.Config.Debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	router := gin.Default()
 
 	if !h.Config.Debug {

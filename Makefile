@@ -13,5 +13,9 @@ install:
 	cd $(MIGRATIONS_DIR) && make install
 	$(COPYCMD) .env.example .env
 
-dcub:
+db:
 	docker-compose up --build -d
+	cd $(MIGRATIONS_DIR) && make migrate-up
+
+run:
+	cd $(BACKEND_DIR) && make run

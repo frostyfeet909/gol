@@ -5,10 +5,12 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.6
+
 COPY . .
 
-RUN go install github.com/swaggo/swag/cmd/swag@v1.16.6 && \
-    swag init -g ./cmd/api/swagger.go -o ./docs
+# Turn off when I don't want swagger
+RUN swag init -g ./cmd/api/swagger.go -o ./docs
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -tags=swagger -trimpath -ldflags="-s -w" -o /out/api ./cmd/api

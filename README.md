@@ -8,6 +8,8 @@ I got bored so I made the simplest API in Go with:
 - Fly.io deployment
 - Neon PG database
 
+It is deployed at [https://gol-app.fly.dev/swagger/index.html] - give it a few seconds to startup after the first request it's all on zero-scaling.
+
 ## Getting Started
 
 1. `make install`

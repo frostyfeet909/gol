@@ -30,11 +30,11 @@ func createRouters(h Handlers) *echo.Echo {
 	router := echo.New()
 	router.Validator = &customValidator{validator: validator.New()}
 
-	router.Use(middleware.Decompress())
+	// router.Use(middleware.Decompress())
 	router.Use(middleware.BodyLimit(1048576))
 	router.Use(middleware.ContextTimeout(60 * time.Second))
 	// router.Use(middleware.CSRF())
-	router.Use(middleware.Gzip())
+	// router.Use(middleware.Gzip())
 	router.Use(middleware.RequestLogger())
 	// router.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20.0)))
 	router.Use(middleware.Recover())

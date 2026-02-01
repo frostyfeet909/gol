@@ -84,7 +84,6 @@ func (h *Handler) list(c *echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, us)
-
 }
 
 // Delete godoc

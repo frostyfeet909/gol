@@ -1,7 +1,7 @@
 package users
 
 import (
-	"api/types"
+	"api/responses"
 	"errors"
 	"net/http"
 
@@ -29,21 +29,21 @@ type createReq struct {
 // @Produce      json
 // @Param        user  body      createReq  true  "User info"
 // @Success      201   {object}  users.User
-// @Failure      400   {object}  types.ErrorResponse
-// @Failure      409   {object}  types.ErrorResponse
+// @Failure      400   {object}  responses.ErrorResponse
+// @Failure      409   {object}  responses.ErrorResponse
 // @Router       /v1/users [post]
 func (h *Handler) create(c *echo.Context) error {
 	var req createReq
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, &types.ErrorResponse{Message: err.Error()})
+		return c.JSON(http.StatusBadRequest, &responses.ErrorResponse{Message: err.Error()})
 	}
 	if err := c.Validate(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, &types.ErrorResponse{Message: err.Error()})
+		return c.JSON(http.StatusBadRequest, &responses.ErrorResponse{Message: err.Error()})
 	}
 
 	u, err := h.svc.create(c.Request().Context(), req.Email, req.Name)
 	if err != nil {
-		return c.JSON(mapErr(err), &types.ErrorResponse{Message: err.Error()})
+		return c.JSON(mapErr(err), &responses.ErrorResponse{Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusCreated, u)
@@ -56,14 +56,14 @@ func (h *Handler) create(c *echo.Context) error {
 // @Produce      json
 // @Param        id   path      string  true  "User ID"
 // @Success      200  {object}  users.User
-// @Failure      404  {object}  types.ErrorResponse
+// @Failure      404  {object}  responses.ErrorResponse
 // @Router       /v1/users/{id} [get]
 func (h *Handler) get(c *echo.Context) error {
 	id := c.Param("id")
 
 	u, err := h.svc.get(c.Request().Context(), id)
 	if err != nil {
-		return c.JSON(mapErr(err), &types.ErrorResponse{Message: err.Error()})
+		return c.JSON(mapErr(err), &responses.ErrorResponse{Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, u)
@@ -75,12 +75,12 @@ func (h *Handler) get(c *echo.Context) error {
 // @Tags         users
 // @Produce      json
 // @Success      200  {array}   users.User
-// @Failure      404  {object}  types.ErrorResponse
+// @Failure      404  {object}  responses.ErrorResponse
 // @Router       /v1/users [get]
 func (h *Handler) list(c *echo.Context) error {
 	us, err := h.svc.list(c.Request().Context())
 	if err != nil {
-		return c.JSON(mapErr(err), &types.ErrorResponse{Message: err.Error()})
+		return c.JSON(mapErr(err), &responses.ErrorResponse{Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, us)
@@ -93,13 +93,13 @@ func (h *Handler) list(c *echo.Context) error {
 // @Tags         users
 // @Param        id   path      string  true  "User ID"
 // @Success      204
-// @Failure      404  {object}  types.ErrorResponse
+// @Failure      404  {object}  responses.ErrorResponse
 // @Router       /v1/users/{id} [delete]
 func (h *Handler) delete(c *echo.Context) error {
 	id := c.Param("id")
 	err := h.svc.remove(c.Request().Context(), id)
 	if err != nil {
-		return c.JSON(mapErr(err), &types.ErrorResponse{Message: err.Error()})
+		return c.JSON(mapErr(err), &responses.ErrorResponse{Message: err.Error()})
 	}
 	return c.NoContent(http.StatusNoContent)
 }

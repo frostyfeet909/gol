@@ -65,9 +65,9 @@ VALUES ($1, $2, $3)
 func (r *PostgresRepo) list(ctx context.Context) ([]User, error) {
 	const q = `SELECT id, email, name FROM users`
 
-	rows, err := r.db.Query(ctx, q)
-	if err != nil {
-		return nil, err
+	rows, r_err := r.db.Query(ctx, q)
+	if r_err != nil {
+		return nil, r_err
 	}
 
 	defer rows.Close()

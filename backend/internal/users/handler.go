@@ -1,10 +1,11 @@
 package users
 
 import (
+	"api/responses"
 	"errors"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v5"
 )
 
 type Handler struct {
@@ -16,8 +17,8 @@ func NewHandler(svc *Service) *Handler {
 }
 
 type createReq struct {
-	Email string `json:"email" binding:"required,email"`
-	Name  string `json:"name"  binding:"required,min=2"`
+	Email string `json:"email" validate:"required,email"`
+	Name  string `json:"name"  validate:"required,min=2"`
 }
 
 // Create godoc
@@ -28,27 +29,24 @@ type createReq struct {
 // @Produce      json
 // @Param        user  body      createReq  true  "User info"
 // @Success      201   {object}  users.User
-// @Failure      400   {object}  map[string]string
-// @Failure      409   {object}  map[string]string
+// @Failure      400   {object}  responses.ErrorResponse
+// @Failure      409   {object}  responses.ErrorResponse
 // @Router       /v1/users [post]
-func (h *Handler) Create(c *gin.Context) {
+func (h *Handler) create(c *echo.Context) error {
 	var req createReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, &responses.ErrorResponse{Message: err.Error()})
+	}
+	if err := c.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, &responses.ErrorResponse{Message: err.Error()})
 	}
 
-	u, err := h.svc.Create(c.Request.Context(), req.Email, req.Name)
+	u, err := h.svc.create(c.Request().Context(), req.Email, req.Name)
 	if err != nil {
-		c.JSON(mapErr(err), gin.H{"error": err.Error()})
-		return
+		return c.JSON(mapErr(err), &responses.ErrorResponse{Message: err.Error()})
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"id":    u.ID,
-		"email": u.Email,
-		"name":  u.Name,
-	})
+	return c.JSON(http.StatusCreated, u)
 }
 
 // Get godoc
@@ -58,22 +56,51 @@ func (h *Handler) Create(c *gin.Context) {
 // @Produce      json
 // @Param        id   path      string  true  "User ID"
 // @Success      200  {object}  users.User
-// @Failure      404  {object}  map[string]string
+// @Failure      404  {object}  responses.ErrorResponse
 // @Router       /v1/users/{id} [get]
-func (h *Handler) Get(c *gin.Context) {
+func (h *Handler) get(c *echo.Context) error {
 	id := c.Param("id")
 
-	u, err := h.svc.Get(c.Request.Context(), id)
+	u, err := h.svc.get(c.Request().Context(), id)
 	if err != nil {
-		c.JSON(mapErr(err), gin.H{"error": err.Error()})
-		return
+		return c.JSON(mapErr(err), &responses.ErrorResponse{Message: err.Error()})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"id":    u.ID,
-		"email": u.Email,
-		"name":  u.Name,
-	})
+	return c.JSON(http.StatusOK, u)
+}
+
+// List godoc
+// @Summary      List users
+// @Description  Fetch all users
+// @Tags         users
+// @Produce      json
+// @Success      200  {array}   users.User
+// @Failure      404  {object}  responses.ErrorResponse
+// @Router       /v1/users [get]
+func (h *Handler) list(c *echo.Context) error {
+	us, err := h.svc.list(c.Request().Context())
+	if err != nil {
+		return c.JSON(mapErr(err), &responses.ErrorResponse{Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, us)
+}
+
+// Delete godoc
+// @Summary      Delete a user
+// @Description  Remove user by ID
+// @Tags         users
+// @Param        id   path      string  true  "User ID"
+// @Success      204
+// @Failure      404  {object}  responses.ErrorResponse
+// @Router       /v1/users/{id} [delete]
+func (h *Handler) delete(c *echo.Context) error {
+	id := c.Param("id")
+	err := h.svc.remove(c.Request().Context(), id)
+	if err != nil {
+		return c.JSON(mapErr(err), &responses.ErrorResponse{Message: err.Error()})
+	}
+	return c.NoContent(http.StatusNoContent)
 }
 
 func mapErr(err error) int {

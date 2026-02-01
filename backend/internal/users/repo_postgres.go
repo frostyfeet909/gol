@@ -16,7 +16,7 @@ func NewPostgresRepo(db *pgxpool.Pool) *PostgresRepo {
 	return &PostgresRepo{db: db}
 }
 
-func (r *PostgresRepo) GetByID(ctx context.Context, id string) (User, error) {
+func (r *PostgresRepo) byID(ctx context.Context, id string) (User, error) {
 	const q = `
 SELECT id, email, name
 FROM users
@@ -33,7 +33,7 @@ WHERE id = $1
 	return u, nil
 }
 
-func (r *PostgresRepo) GetByEmail(ctx context.Context, email string) (User, error) {
+func (r *PostgresRepo) byEmail(ctx context.Context, email string) (User, error) {
 	const q = `
 SELECT id, email, name
 FROM users
@@ -50,7 +50,7 @@ WHERE email = $1
 	return u, nil
 }
 
-func (r *PostgresRepo) Create(ctx context.Context, u User) (User, error) {
+func (r *PostgresRepo) new(ctx context.Context, u User) (User, error) {
 	const q = `
 INSERT INTO users (id, email, name)
 VALUES ($1, $2, $3)
@@ -60,4 +60,37 @@ VALUES ($1, $2, $3)
 		return User{}, err
 	}
 	return u, nil
+}
+
+func (r *PostgresRepo) list(ctx context.Context) ([]User, error) {
+	const q = `SELECT id, email, name FROM users`
+
+	rows, rErr := r.db.Query(ctx, q)
+	if rErr != nil {
+		return nil, rErr
+	}
+
+	defer rows.Close()
+
+	var users []User
+
+	for rows.Next() {
+		var u User
+		if err := rows.Scan(&u.ID, &u.Email, &u.Name); err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (r *PostgresRepo) remove(ctx context.Context, id string) error {
+	const q = `DELETE FROM users WHERE id = $1`
+
+	_, err := r.db.Exec(ctx, q, id)
+	return err
 }

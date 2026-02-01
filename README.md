@@ -3,7 +3,7 @@ My GO repo that I love.
 
 I got bored so I made the simplest API in Go with:
 
-- Gin
+- ~~Gin~~ Echo framework
 - Auto generated Swagger docs
 - Fly.io deployment
 - Neon PG database

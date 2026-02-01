@@ -12,6 +12,7 @@ endif
 install:
 	go mod download
 	go install github.com/swaggo/swag/cmd/swag@v1.16.6
+	go install github.com/air-verse/air@v1.64.4
 	$(COPYCMD) ../.env.example .env
 
 run:

@@ -16,12 +16,8 @@ func NewService(repo Repository) *Service {
 	}
 }
 
-func (s *Service) Create(ctx context.Context, email string, name string) (User, error) {
-	if err := ValidateNewUser(email, name); err != nil {
-		return User{}, err
-	}
-
-	if _, err := s.repo.GetByEmail(ctx, email); err == nil {
+func (s *Service) create(ctx context.Context, email string, name string) (User, error) {
+	if _, err := s.repo.byEmail(ctx, email); err == nil {
 		return User{}, ErrEmailTaken
 	}
 
@@ -31,7 +27,7 @@ func (s *Service) Create(ctx context.Context, email string, name string) (User, 
 		Name:  name,
 	}
 
-	u, err := s.repo.Create(ctx, u)
+	u, err := s.repo.new(ctx, u)
 	if err != nil {
 		return User{}, err
 	}
@@ -39,6 +35,14 @@ func (s *Service) Create(ctx context.Context, email string, name string) (User, 
 	return u, nil
 }
 
-func (s *Service) Get(ctx context.Context, id string) (User, error) {
-	return s.repo.GetByID(ctx, id)
+func (s *Service) get(ctx context.Context, id string) (User, error) {
+	return s.repo.byID(ctx, id)
+}
+
+func (s *Service) list(ctx context.Context) ([]User, error) {
+	return s.repo.list(ctx)
+}
+
+func (s *Service) remove(ctx context.Context, id string) error {
+	return s.repo.remove(ctx, id)
 }
